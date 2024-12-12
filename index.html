@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紫紫跑酷遊戲</title>
+    <style>
+        /* 加一些簡單的樣式 */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            overflow: hidden;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <script>
+        // 遊戲邏輯會寫在這裡
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let player = { x: 50, y: 300, width: 30, height: 30, color: 'purple' };
+        let obstacles = [];
+        let isJumping = false;
+        let gravity = 2;
+
+        // 玩家跳躍邏輯
+        function jump() {
+            if (!isJumping) {
+                isJumping = true;
+                let jumpHeight = 100;
+                let jumpSpeed = 20;
+                let jumpInterval = setInterval(() => {
+                    player.y -= jumpSpeed;
+                    jumpHeight -= jumpSpeed;
+                    if (jumpHeight <= 0) {
+                        clearInterval(jumpInterval);
+                        fall();
+                    }
+                }, 20);
+            }
+        }
+
+        // 玩家下落邏輯
+        function fall() {
+            let fallInterval = setInterval(() => {
+                player.y += gravity;
+                if (player.y >= 300) {
+                    player.y = 300;
+                    isJumping = false;
+                    clearInterval(fallInterval);
+                }
+            }, 20);
+        }
+
+        // 繪製畫面
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // 障礙物
+            obstacles.forEach((obstacle) => {
+                ctx.fillStyle = obstacle.color;
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                obstacle.x -= 5;
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.shift();
+                }
+            });
+        }
+
+        // 添加障礙物
+        function addObstacle() {
+            let height = Math.random() * 50 + 20;
+            obstacles.push({ x: canvas.width, y: canvas.height - height, width: 20, height: height, color: 'red' });
+        }
+
+        // 遊戲主循環
+        function gameLoop() {
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 開始遊戲
+        setInterval(addObstacle, 2000);
+        gameLoop();
+
+        // 監聽鍵盤事件
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                jump();
+            }
+        });
+    </script>
+</body>
+</html>
+``
